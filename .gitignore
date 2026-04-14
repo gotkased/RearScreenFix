@@ -1,0 +1,20 @@
+# Android build outputs
+/build/
+/app/build/
+
+# Local properties (contains SDK path — private to your machine)
+local.properties
+
+# Signing secrets — NEVER commit these to git
+keystore.properties
+*.jks
+*.keystore
+keystore_base64_for_github_secret.txt
+
+# IDE files
+/.idea/
+*.iml
+.DS_Store
+
+# Gradle wrapper (keep gradlew scripts, exclude caches)
+.gradle/

@@ -1,0 +1,75 @@
+plugins {
+    id 'com.android.application'
+}
+
+// Učitaj keystore.properties ako postoji (lokalni build)
+// GitHub Actions koristi env varijable direktno
+def keystorePropertiesFile = rootProject.file("keystore.properties")
+def keystoreProperties = new Properties()
+if (keystorePropertiesFile.exists()) {
+    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+}
+
+android {
+    namespace 'com.rearscreenfix'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId "com.rearscreenfix"
+        minSdk 28          // Android 9+ (tvoj uređaj ima Android 16)
+        targetSdk 34
+        versionCode 1
+        versionName "1.0"
+    }
+
+    signingConfigs {
+        release {
+            if (keystorePropertiesFile.exists()) {
+                // Lokalni build: čitaj iz keystore.properties
+                storeFile file(keystoreProperties['storeFile'])
+                storePassword keystoreProperties['storePassword']
+                keyAlias keystoreProperties['keyAlias']
+                keyPassword keystoreProperties['keyPassword']
+            } else {
+                // CI build (GitHub Actions): čitaj iz env varijabli
+                storeFile file("../rearscreenfix.jks")
+                storePassword System.getenv("SIGNING_STORE_PASSWORD")
+                keyAlias System.getenv("SIGNING_KEY_ALIAS")
+                keyPassword System.getenv("SIGNING_KEY_PASSWORD")
+            }
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false   // NE smijemo obfuscirati — Xposed treba čitljiva imena
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt')
+            signingConfig signingConfigs.release
+        }
+        debug {
+            minifyEnabled false
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
+    }
+
+    // Isključi nepotrebne resurse da smanji veličinu APK-a
+    packagingOptions {
+        resources {
+            excludes += [
+                'META-INF/*.kotlin_module',
+                '**/*.version',
+                '**/*.proto'
+            ]
+        }
+    }
+}
+
+dependencies {
+    // Xposed Bridge API — samo za kompajliranje, NE pakira se u APK
+    compileOnly 'de.robv.android.xposed:api:82'
+    compileOnly 'de.robv.android.xposed:api:82:sources'
+}
