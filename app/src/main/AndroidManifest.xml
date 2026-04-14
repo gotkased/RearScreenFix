@@ -25,10 +25,10 @@
             android:name="xposedminversion"
             android:value="53" />
 
-        <!-- Opseg hookova — ThemeManager i SubScreenCenter -->
+        <!-- Opseg hookova — ThemeManager (i SubScreenCenter se hookuje runtime) -->
         <meta-data
             android:name="xposedscope"
-            android:value="com.android.thememanager;com.xiaomi.subscreencenter" />
+            android:value="com.android.thememanager" />
 
     </application>
 
